@@ -1,4 +1,5 @@
 import 'package:clone_flutter_app/component/dory_themes.dart';
+import 'package:clone_flutter_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: DoryThemes.lightTheme(),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(),
       builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
           child: child!),

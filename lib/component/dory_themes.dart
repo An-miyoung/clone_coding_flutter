@@ -8,6 +8,7 @@ class DoryThemes {
         scaffoldBackgroundColor: Colors.white,
         splashColor: Colors.white,
         brightness: Brightness.light,
+        appBarTheme: _appBarTheme,
         textTheme: _textTheme,
       );
 
@@ -18,6 +19,12 @@ class DoryThemes {
         brightness: Brightness.dark,
         textTheme: _textTheme,
       );
+
+  static const AppBarTheme _appBarTheme = AppBarTheme(
+    backgroundColor: Colors.white,
+    iconTheme: IconThemeData(color: DoryColors.primaryColor),
+    elevation: 0,
+  );
 
   static const TextTheme _textTheme = TextTheme(
     headline4: TextStyle(

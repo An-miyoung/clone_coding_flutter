@@ -1,10 +1,14 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:clone_flutter_app/component/dory_constants.dart';
+import 'package:clone_flutter_app/component/dory_widgts.dart';
+import 'package:clone_flutter_app/pages/add_medicine/add_alarm_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../component/dory_page_route.dart';
+import 'components/add_page_widget.dart';
 
 class AddMedicinePage extends StatefulWidget {
   const AddMedicinePage({Key? key}) : super(key: key);
@@ -15,6 +19,7 @@ class AddMedicinePage extends StatefulWidget {
 
 class _AddMedicinePageState extends State<AddMedicinePage> {
   final _nameController = TextEditingController();
+  File? medicineImage;
 
   @override
   void dispose() {
@@ -28,73 +33,70 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
       appBar: AppBar(
         leading: const CloseButton(),
       ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: pagePadding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: largeSpace,
-                ),
-                Text(
-                  "어떤 약이예요?",
-                  style: Theme.of(context).textTheme.headline4,
-                ),
-                const SizedBox(
-                  height: largeSpace,
-                ),
-                const Center(
-                  child: MedicineImageButton(),
-                ),
-                const SizedBox(
-                  height: largeSpace + regularSpace,
-                ),
-                Text(
-                  "약이름",
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
-                TextFormField(
-                  controller: _nameController,
-                  maxLength: 20,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.done,
-                  style: Theme.of(context).textTheme.bodyText1,
-                  decoration: InputDecoration(
-                    hintText: "복용할 약 이름을 기입해주세요",
-                    hintStyle: Theme.of(context).textTheme.bodyText2,
-                    contentPadding: textFieldContentPadding,
-                  ),
-                ),
-              ],
+      body: SingleChildScrollView(
+        child: AddPageBody(
+          children: [
+            const SizedBox(
+              height: largeSpace,
             ),
-          ),
+            Text(
+              "어떤 약이예요?",
+              style: Theme.of(context).textTheme.headline4,
+            ),
+            const SizedBox(
+              height: largeSpace,
+            ),
+            Center(
+              child: MedicineImageButton(
+                changeImageFile: (File? value) {
+                  medicineImage = value;
+                },
+              ),
+            ),
+            const SizedBox(
+              height: largeSpace + regularSpace,
+            ),
+            Text(
+              "약이름",
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
+            TextFormField(
+              controller: _nameController,
+              maxLength: 20,
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.done,
+              style: Theme.of(context).textTheme.bodyText1,
+              decoration: InputDecoration(
+                hintText: "복용할 약 이름을 기입해주세요",
+                hintStyle: Theme.of(context).textTheme.bodyText2,
+                contentPadding: textFieldContentPadding,
+              ),
+              onChanged: (_) {
+                setState(() {});
+              },
+            ),
+          ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: submitButtonBoxPadding,
-          child: SizedBox(
-            height: submitButtonHeight,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.subtitle1),
-              child: const Text("다음"),
-            ),
-          ),
-        ),
+      bottomNavigationBar: BottomSubmitButton(
+        onPressed: _nameController.text.isEmpty ? null : _onAddAlarmPage,
+        text: "다음",
       ),
     );
+  }
+
+  void _onAddAlarmPage() {
+    Navigator.of(context).push(FadePageRoute(
+        page: AddAlarmPage(
+            medicineImage: medicineImage, medicineText: _nameController.text)));
   }
 }
 
 class MedicineImageButton extends StatefulWidget {
-  const MedicineImageButton({Key? key}) : super(key: key);
+  const MedicineImageButton({Key? key, required this.changeImageFile})
+      : super(key: key);
+
+  final ValueChanged<File?> changeImageFile;
 
   @override
   State<MedicineImageButton> createState() => _MedicineImageButtonState();
@@ -138,6 +140,7 @@ class _MedicineImageButtonState extends State<MedicineImageButton> {
       if (xFile != null) {
         setState(() {
           _pickedImage = File(xFile.path);
+          widget.changeImageFile(_pickedImage);
         });
       }
       Navigator.maybePop(context);
@@ -155,15 +158,11 @@ class PickImageBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: pagePadding,
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextButton(onPressed: onPressedCamera, child: const Text("카메라로 촬영")),
-          TextButton(
-              onPressed: onPressedGallery, child: const Text("앨범에서 가져오기"))
-        ]),
-      ),
+    return BottomSheetBody(
+      children: [
+        TextButton(onPressed: onPressedCamera, child: const Text("카메라로 촬영")),
+        TextButton(onPressed: onPressedGallery, child: const Text("앨범에서 가져오기"))
+      ],
     );
   }
 }

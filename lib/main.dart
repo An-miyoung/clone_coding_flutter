@@ -1,15 +1,20 @@
 import 'package:clone_flutter_app/component/dory_themes.dart';
 import 'package:clone_flutter_app/pages/home_page.dart';
+import 'package:clone_flutter_app/repositories/dory_hive.dart';
 import 'package:flutter/material.dart';
 
 import 'services/dory_notification_service.dart';
 
-void main() {
+final notification = DoryNotificationService();
+final hive = DoryHive();
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final notification = DoryNotificationService();
-  notification.initializeTimeZone();
-  notification.initializeNotification();
+  await notification.initializeTimeZone();
+  await notification.initializeNotification();
+
+  await hive.initializeHive();
 
   runApp(const MyApp());
 }

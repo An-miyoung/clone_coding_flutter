@@ -2,11 +2,14 @@ import 'dart:io';
 import 'package:clone_flutter_app/component/dory_colors.dart';
 import 'package:clone_flutter_app/component/dory_constants.dart';
 import 'package:clone_flutter_app/component/dory_widgts.dart';
+import 'package:clone_flutter_app/main.dart';
+import 'package:clone_flutter_app/models/medicine.dart';
 import 'package:clone_flutter_app/services/add_medicine_service.dart';
+import 'package:clone_flutter_app/services/dory_file_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 import 'components/add_page_widget.dart';
 
@@ -44,9 +47,32 @@ class AddAlarmPage extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: BottomSubmitButton(
-        onPressed: () {
-          // add alarm
-          showPermissonDenied(context, permission: "알람 접근");
+        onPressed: () async {
+          // 1.add alarm
+          bool result = false;
+          for (var alarm in service.alarms) {
+            result = await notification.addNotifcication(
+              medicineId: 0,
+              alarmTimeStr: alarm,
+              body: '$alarm 약 먹을 시간이예요!',
+              title: '$medicineText 복약했다고 알려주세요',
+            );
+          }
+          if (!result) {
+            // ignore: use_build_context_synchronously
+            showPermissonDenied(context, permission: "알람 접근");
+          }
+          // 2. save Image
+          String? imageFilePath;
+          if (medicineImage != null) {
+            imageFilePath = await saveImageToLocalDirectory(medicineImage!);
+          }
+          // 3. add medicine model
+          final medicine = Medicine(
+              id: 0,
+              name: medicineText,
+              imagePath: imageFilePath,
+              alarms: service.alarms);
         },
         text: "완료",
       ),

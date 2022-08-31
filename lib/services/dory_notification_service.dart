@@ -43,7 +43,8 @@ class DoryNotificationService {
   }
 
   Future<bool> addNotifcication({
-    required DateTime alarmTime,
+    required int medicineId,
+    required String alarmTimeStr,
     required String title, // HH:mm 약 먹을 시간이예요!
     required String body, // {약이름} 복약했다고 알려주세요!
   }) async {
@@ -54,14 +55,15 @@ class DoryNotificationService {
 
     /// exception
     final now = tz.TZDateTime.now(tz.local);
+    final alarmTime = DateFormat('HH:mm').parse(alarmTimeStr);
     final day = (alarmTime.hour < now.hour ||
             alarmTime.hour == now.hour && alarmTime.minute <= now.minute)
         ? now.day + 1
         : now.day;
 
     // id
-    final alarmTimeId =
-        DateFormat('HH:mm').format(alarmTime).replaceAll(":", "");
+    String alarmTimeId = alarmTimeStr.replaceAll(":", "");
+    alarmTimeId = medicineId.toString() + alarmTimeId;
 
     /// add schedule notification
     final details = _notificationDetails(

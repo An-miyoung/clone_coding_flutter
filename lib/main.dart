@@ -2,7 +2,15 @@ import 'package:clone_flutter_app/component/dory_themes.dart';
 import 'package:clone_flutter_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
+import 'services/dory_notification_service.dart';
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final notification = DoryNotificationService();
+  notification.initializeTimeZone();
+  notification.initializeNotification();
+
   runApp(const MyApp());
 }
 

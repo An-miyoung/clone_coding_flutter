@@ -6,6 +6,7 @@ import 'package:clone_flutter_app/services/add_medicine_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'components/add_page_widget.dart';
 
@@ -43,7 +44,10 @@ class AddAlarmPage extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: BottomSubmitButton(
-        onPressed: () {},
+        onPressed: () {
+          // add alarm
+          showPermissonDenied(context, permission: "알람 접근");
+        },
         text: "완료",
       ),
     );

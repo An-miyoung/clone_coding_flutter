@@ -6,6 +6,7 @@ import 'package:clone_flutter_app/pages/add_medicine/add_alarm_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../component/dory_page_route.dart';
 import 'components/add_page_widget.dart';
@@ -144,6 +145,9 @@ class _MedicineImageButtonState extends State<MedicineImageButton> {
         });
       }
       Navigator.maybePop(context);
+    }).onError((error, stackTrace) {
+      Navigator.pop(context);
+      showPermissonDenied(context, permission: '카메라 및 갤러리 접근');
     });
   }
 }

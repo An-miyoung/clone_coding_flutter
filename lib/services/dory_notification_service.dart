@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone_web.dart';
 import 'package:intl/intl.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -43,26 +43,25 @@ class DoryNotificationService {
   }
 
   Future<bool> addNotifcication({
-    required int medicineId,
-    required String alarmTimeStr,
+    required DateTime alarmTime,
     required String title, // HH:mm 약 먹을 시간이예요!
     required String body, // {약이름} 복약했다고 알려주세요!
   }) async {
     if (!await permissionNotification) {
-      // show native setting page
+      //
       return false;
     }
 
     /// exception
     final now = tz.TZDateTime.now(tz.local);
-    final alarmTime = DateFormat('HH:mm').parse(alarmTimeStr);
     final day = (alarmTime.hour < now.hour ||
             alarmTime.hour == now.hour && alarmTime.minute <= now.minute)
         ? now.day + 1
         : now.day;
 
-    /// id
-    String alarmTimeId = alarmId(medicineId, alarmTimeStr);
+    // id
+    final alarmTimeId =
+        DateFormat('HH:mm').format(alarmTime).replaceAll(":", "");
 
     /// add schedule notification
     final details = _notificationDetails(
@@ -88,7 +87,6 @@ class DoryNotificationService {
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
-      payload: alarmTimeId,
     );
     log('[notification list] ${await pendingNotificationIds}');
 

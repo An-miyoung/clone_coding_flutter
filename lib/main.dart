@@ -1,12 +1,16 @@
-import 'package:clone_flutter_app/component/dory_themes.dart';
-import 'package:clone_flutter_app/pages/home_page.dart';
-import 'package:clone_flutter_app/repositories/dory_hive.dart';
 import 'package:flutter/material.dart';
 
+import 'component/dory_themes.dart';
+import 'pages/home_page.dart';
+import 'repositories/dory_hive.dart';
+import 'repositories/medicine_history_repository.dart';
+import 'repositories/medicine_repository.dart';
 import 'services/dory_notification_service.dart';
 
 final notification = DoryNotificationService();
 final hive = DoryHive();
+final medicineRepository = MedicineRepository();
+final historyRepository = MedicineHistoryRepository();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

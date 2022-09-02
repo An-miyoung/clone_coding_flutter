@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 part "medicine.g.dart";
 
 @HiveType(typeId: 1)
-class Medicine {
+class Medicine extends HiveObject {
   @HiveField(0)
   final int id;
 
@@ -14,11 +14,16 @@ class Medicine {
   final String? imagePath;
 
   @HiveField(3)
-  final Set<String> alarms;
+  final List<String> alarms;
 
   Medicine(
       {required this.id,
       required this.name,
       required this.imagePath,
       required this.alarms});
+
+  @override
+  String toString() {
+    return "{id: $id, name: $name, imagePath: $imagePath, alarms: $alarms}";
+  }
 }

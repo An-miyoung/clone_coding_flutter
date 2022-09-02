@@ -1,16 +1,14 @@
 import 'dart:io';
-import 'package:clone_flutter_app/component/dory_colors.dart';
-import 'package:clone_flutter_app/component/dory_constants.dart';
-import 'package:clone_flutter_app/component/dory_widgts.dart';
-import 'package:clone_flutter_app/main.dart';
-import 'package:clone_flutter_app/models/medicine.dart';
-import 'package:clone_flutter_app/services/add_medicine_service.dart';
-import 'package:clone_flutter_app/services/dory_file_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-// import 'package:permission_handler/permission_handler.dart';
 
+import '../../component/dory_constants.dart';
+import '../../component/dory_widgts.dart';
+import '../../main.dart';
+import '../../models/medicine.dart';
+import '../../services/add_medicine_service.dart';
+import '../../services/dory_file_service.dart';
+import '../bottomsheet/time_setting_bottomsheet.dart';
 import 'components/add_page_widget.dart';
 
 class AddAlarmPage extends StatelessWidget {
@@ -52,7 +50,7 @@ class AddAlarmPage extends StatelessWidget {
           bool result = false;
           for (var alarm in service.alarms) {
             result = await notification.addNotifcication(
-              medicineId: 0,
+              medicineId: medicineRepository.newId,
               alarmTimeStr: alarm,
               body: '$alarm 약 먹을 시간이예요!',
               title: '$medicineText 복약했다고 알려주세요',
@@ -60,7 +58,7 @@ class AddAlarmPage extends StatelessWidget {
           }
           if (!result) {
             // ignore: use_build_context_synchronously
-            showPermissonDenied(context, permission: "알람 접근");
+            return showPermissonDenied(context, permission: "알람 접근");
           }
           // 2. save Image
           String? imageFilePath;
@@ -69,10 +67,14 @@ class AddAlarmPage extends StatelessWidget {
           }
           // 3. add medicine model
           final medicine = Medicine(
-              id: 0,
+              id: medicineRepository.newId,
               name: medicineText,
               imagePath: imageFilePath,
-              alarms: service.alarms);
+              alarms: service.alarms.toList());
+          medicineRepository.addMedicine(medicine);
+
+          // ignore: use_build_context_synchronously
+          Navigator.popUntil(context, ((route) => route.isFirst));
         },
         text: "완료",
       ),
@@ -130,90 +132,21 @@ class AlarmBox extends StatelessWidget {
               showModalBottomSheet(
                 context: context,
                 builder: (context) {
-                  return TimePickerBottomSheet(
+                  return TimeSettingBottomSheet(
                     initialTime: text,
-                    service: service,
                   );
                 },
-              );
+              ).then((value) {
+                if (value == null || value is! DateTime) return;
+                service.setAlarm(
+                  prevTime: text,
+                  setTime: value,
+                );
+              });
             },
             child: Text(text),
           ),
         ),
-      ],
-    );
-  }
-}
-
-// ignore: must_be_immutable
-class TimePickerBottomSheet extends StatelessWidget {
-  TimePickerBottomSheet({
-    Key? key,
-    required this.initialTime,
-    required this.service,
-  }) : super(key: key);
-
-  final String initialTime;
-  final AddMedicineService service;
-
-  DateTime? _setDateTime;
-
-  @override
-  Widget build(BuildContext context) {
-    final initialDateTime = DateFormat('HH:mm').parse(initialTime);
-
-    return BottomSheetBody(
-      children: [
-        SizedBox(
-          height: 200,
-          child: CupertinoDatePicker(
-            onDateTimeChanged: (dateTime) {
-              _setDateTime = dateTime;
-            },
-            mode: CupertinoDatePickerMode.time,
-            initialDateTime: initialDateTime,
-          ),
-        ),
-        const SizedBox(height: regularSpace),
-        Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: SizedBox(
-                height: submitButtonHeight,
-                child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom(
-                      textStyle: Theme.of(context).textTheme.subtitle1,
-                      primary: Colors.white,
-                      onPrimary: DoryColors.primaryColor,
-                    ),
-                    child: const Text("취소")),
-              ),
-            ),
-            const SizedBox(
-              width: smallSpace,
-            ),
-            Expanded(
-              flex: 1,
-              child: SizedBox(
-                height: submitButtonHeight,
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      textStyle: Theme.of(context).textTheme.subtitle1,
-                    ),
-                    onPressed: () {
-                      service.setAlarm(
-                        prevTime: initialTime,
-                        setTime: _setDateTime ?? initialDateTime,
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: const Text("선택")),
-              ),
-            ),
-          ],
-        )
       ],
     );
   }

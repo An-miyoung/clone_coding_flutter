@@ -11,8 +11,8 @@ import '../../models/medicine_history.dart';
 import '../bottomsheet/time_setting_bottomsheet.dart';
 import 'image_detail_page.dart';
 
-class BeforeTakeTile extends StatelessWidget {
-  const BeforeTakeTile({
+class AfterTakeTile extends StatelessWidget {
+  const AfterTakeTile({
     Key? key,
     required this.medicineAlarm,
   }) : super(key: key);
@@ -24,79 +24,124 @@ class BeforeTakeTile extends StatelessWidget {
     final textStyle = Theme.of(context).textTheme.bodyText2;
     return Row(
       children: [
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: medicineAlarm.imagePath == null
-              ? null
-              : () {
-                  Navigator.push(
-                    context,
-                    FadePageRoute(
-                      page: ImageDetailPage(medicineAlarm: medicineAlarm),
-                    ),
-                  );
-                },
-          child: CircleAvatar(
-            backgroundColor: Colors.grey,
-            radius: 40,
-            foregroundImage: medicineAlarm.imagePath == null
-                ? null
-                : FileImage(File(medicineAlarm.imagePath!)),
-          ),
+        Stack(
+          children: [
+            _MedicineImageButton(medicineAlarm: medicineAlarm),
+            CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.green.withOpacity(0.8),
+                child: const Icon(
+                  CupertinoIcons.check_mark,
+                  color: Colors.white,
+                ))
+          ],
         ),
         const SizedBox(width: smallSpace),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(medicineAlarm.alarmTime, style: textStyle),
-              const SizedBox(height: 6),
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(medicineAlarm.name, style: textStyle),
-                  TileActionButton(
-                    title: "지금",
-                    onTap: () {},
-                  ),
-                  Text(
-                    "|",
-                    style: textStyle,
-                  ),
-                  TileActionButton(
-                    title: "아까",
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => TimeSettingBottomSheet(
-                            initialTime: medicineAlarm.alarmTime),
-                      ).then((takeDateTime) {
-                        if (takeDateTime == null || takeDateTime is! DateTime) {
-                          return;
-                        }
-                        historyRepository.addHistory(MedicineHistory(
-                            medicineId: medicineAlarm.id,
-                            alarmTime: medicineAlarm.alarmTime,
-                            takeTime: takeDateTime));
-                      });
-                    },
-                  ),
-                  Text(
-                    "먹었어요.",
-                    style: textStyle,
-                  )
-                ],
-              )
-            ],
+            children: _buildTileBody(textStyle, context),
           ),
         ),
-        CupertinoButton(
-          onPressed: () {
-            medicineRepository.deleteMedicine(medicineAlarm.key);
-          },
-          child: const Icon(CupertinoIcons.ellipsis_vertical),
-        ),
+        _MoreButton(medicineAlarm: medicineAlarm),
       ],
+    );
+  }
+
+  List<Widget> _buildTileBody(TextStyle? textStyle, BuildContext context) {
+    return [
+      Text.rich(
+        TextSpan(
+          text: "${medicineAlarm.alarmTime} -",
+          style: textStyle,
+          children: [
+            TextSpan(
+                text: ' 20:20',
+                style: textStyle?.copyWith(fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
+      const SizedBox(height: 6),
+      Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(medicineAlarm.name, style: textStyle),
+          TileActionButton(
+            title: "20시 20분에 ",
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => TimeSettingBottomSheet(
+                    initialTime: medicineAlarm.alarmTime),
+              ).then((takeDateTime) {
+                if (takeDateTime == null || takeDateTime is! DateTime) {
+                  return;
+                }
+                historyRepository.addHistory(MedicineHistory(
+                    medicineId: medicineAlarm.id,
+                    alarmTime: medicineAlarm.alarmTime,
+                    takeTime: takeDateTime));
+              });
+            },
+          ),
+          Text(
+            "먹었어요.",
+            style: textStyle,
+          )
+        ],
+      )
+    ];
+  }
+}
+
+class _MedicineImageButton extends StatelessWidget {
+  const _MedicineImageButton({
+    Key? key,
+    required this.medicineAlarm,
+  }) : super(key: key);
+
+  final MedicineAlarm medicineAlarm;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: medicineAlarm.imagePath == null
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                FadePageRoute(
+                  page: ImageDetailPage(medicineAlarm: medicineAlarm),
+                ),
+              );
+            },
+      child: CircleAvatar(
+        backgroundColor: Colors.grey,
+        radius: 40,
+        foregroundImage: medicineAlarm.imagePath == null
+            ? null
+            : FileImage(File(medicineAlarm.imagePath!)),
+      ),
+    );
+  }
+}
+
+class _MoreButton extends StatelessWidget {
+  const _MoreButton({
+    Key? key,
+    required this.medicineAlarm,
+  }) : super(key: key);
+
+  final MedicineAlarm medicineAlarm;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      onPressed: () {
+        medicineRepository.deleteMedicine(medicineAlarm.key);
+      },
+      child: const Icon(CupertinoIcons.ellipsis_vertical),
     );
   }
 }

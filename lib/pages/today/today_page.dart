@@ -61,7 +61,7 @@ class TodayPage extends StatelessWidget {
           child: ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: smallSpace),
               itemBuilder: ((context, index) =>
-                  BeforeTakeTile(medicineAlarm: medicineAlarms[index])),
+                  AfterTakeTile(medicineAlarm: medicineAlarms[index])),
               separatorBuilder: ((context, index) {
                 return const Divider(height: regularSpace);
               }),

@@ -6,6 +6,7 @@ import '../../component/dory_constants.dart';
 import '../../main.dart';
 import '../../models/medicine_alarm.dart';
 
+import '../../models/medicine_history.dart';
 import 'today_empty_widget.dart';
 import 'today_take_tile.dart';
 
@@ -59,16 +60,51 @@ class TodayPage extends StatelessWidget {
         const Divider(height: 1, thickness: 1.0),
         Expanded(
           child: ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: smallSpace),
-              itemBuilder: ((context, index) =>
-                  AfterTakeTile(medicineAlarm: medicineAlarms[index])),
-              separatorBuilder: ((context, index) {
-                return const Divider(height: regularSpace);
-              }),
-              itemCount: medicineAlarms.length),
+            padding: const EdgeInsets.symmetric(vertical: smallSpace),
+            itemCount: medicineAlarms.length,
+            itemBuilder: ((context, index) {
+              return _buildListTile(medicineAlarms[index]);
+            }),
+            separatorBuilder: ((context, index) {
+              return const Divider(height: regularSpace);
+            }),
+          ),
         ),
         const Divider(height: 1, thickness: 1.0),
       ],
     );
   }
+
+  Widget _buildListTile(MedicineAlarm medicineAlarm) {
+    return ValueListenableBuilder(
+        valueListenable: historyRepository.historyBox.listenable(),
+        builder: (context, Box<MedicineHistory> historyBox, _) {
+          if (historyBox.values.isEmpty) {
+            return BeforeTakeTile(medicineAlarm: medicineAlarm);
+          }
+
+          final todayTakeHistory = historyBox.values.singleWhere(
+            (history) =>
+                history.medicineId == medicineAlarm.id &&
+                history.alarmTime == medicineAlarm.alarmTime &&
+                isToday(history.takeTime, DateTime.now()),
+            orElse: () => MedicineHistory(
+                medicineId: -1, alarmTime: '', takeTime: DateTime.now()),
+          );
+          if (todayTakeHistory.medicineId == -1 &&
+              todayTakeHistory.alarmTime == "") {
+            return BeforeTakeTile(medicineAlarm: medicineAlarm);
+          }
+          return AfterTakeTile(
+            medicineAlarm: medicineAlarm,
+            medicineHistory: todayTakeHistory,
+          );
+        });
+  }
+}
+
+bool isToday(DateTime source, DateTime destination) {
+  return source.year == destination.year &&
+      source.month == destination.month &&
+      source.day == destination.day;
 }

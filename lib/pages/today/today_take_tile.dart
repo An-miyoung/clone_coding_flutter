@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../component/dory_constants.dart';
 import '../../component/dory_page_route.dart';
@@ -11,13 +12,85 @@ import '../../models/medicine_history.dart';
 import '../bottomsheet/time_setting_bottomsheet.dart';
 import 'image_detail_page.dart';
 
-class AfterTakeTile extends StatelessWidget {
-  const AfterTakeTile({
+class BeforeTakeTile extends StatelessWidget {
+  const BeforeTakeTile({
     Key? key,
     required this.medicineAlarm,
   }) : super(key: key);
 
   final MedicineAlarm medicineAlarm;
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyText2;
+
+    return Row(
+      children: [
+        _MedicineImageButton(medicineAlarm: medicineAlarm),
+        const SizedBox(width: smallSpace),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _buildTileBody(textStyle, context),
+          ),
+        ),
+        _MoreButton(medicineAlarm: medicineAlarm),
+      ],
+    );
+  }
+
+  List<Widget> _buildTileBody(TextStyle? textStyle, BuildContext context) {
+    return [
+      Text('🕑 ${medicineAlarm.alarmTime}', style: textStyle),
+      const SizedBox(height: 6),
+      Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text('${medicineAlarm.name},', style: textStyle),
+          TileActionButton(
+            onTap: () {
+              historyRepository.addHistory(MedicineHistory(
+                  medicineId: medicineAlarm.id,
+                  alarmTime: medicineAlarm.alarmTime,
+                  takeTime: DateTime.now()));
+            },
+            title: '지금',
+          ),
+          Text('|', style: textStyle),
+          TileActionButton(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => TimeSettingBottomSheet(
+                    initialTime: medicineAlarm.alarmTime),
+              ).then((takeDateTime) {
+                if (takeDateTime == null || takeDateTime is! DateTime) {
+                  return;
+                }
+                historyRepository.addHistory(MedicineHistory(
+                    medicineId: medicineAlarm.id,
+                    alarmTime: medicineAlarm.alarmTime,
+                    takeTime: takeDateTime));
+              });
+            },
+            title: '아까',
+          ),
+          Text('먹었어요!', style: textStyle),
+        ],
+      )
+    ];
+  }
+}
+
+class AfterTakeTile extends StatelessWidget {
+  const AfterTakeTile({
+    Key? key,
+    required this.medicineAlarm,
+    required this.medicineHistory,
+  }) : super(key: key);
+
+  final MedicineAlarm medicineAlarm;
+  final MedicineHistory medicineHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +122,15 @@ class AfterTakeTile extends StatelessWidget {
   }
 
   List<Widget> _buildTileBody(TextStyle? textStyle, BuildContext context) {
+    // final  = DateFormat('HH:mm').format(medicineHistory.takeTime);
     return [
       Text.rich(
         TextSpan(
-          text: "${medicineAlarm.alarmTime} -",
+          text: "✅  ${medicineAlarm.alarmTime} -",
           style: textStyle,
           children: [
             TextSpan(
-                text: ' 20:20',
+                text: DateFormat('HH:mm').format(medicineHistory.takeTime),
                 style: textStyle?.copyWith(fontWeight: FontWeight.w500)),
           ],
         ),
@@ -67,7 +141,8 @@ class AfterTakeTile extends StatelessWidget {
         children: [
           Text(medicineAlarm.name, style: textStyle),
           TileActionButton(
-            title: "20시 20분에 ",
+            title:
+                "${DateFormat('HH시 mm분').format(medicineHistory.takeTime)}에 ",
             onTap: () {
               showModalBottomSheet(
                 context: context,

@@ -162,7 +162,20 @@ class AfterTakeTile extends StatelessWidget {
   void _onTab(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => TimeSettingBottomSheet(initialTime: takeTimeStr),
+      builder: (context) => TimeSettingBottomSheet(
+        initialTime: takeTimeStr,
+        submitTitle: "수정",
+        bottomWidget: TextButton(
+          onPressed: () {
+            historyRepository.deleteHistory(medicineHistory.key);
+            Navigator.pop(context);
+          },
+          child: Text(
+            "복약시간을 지우고 싶어요.",
+            style: Theme.of(context).textTheme.bodyText2,
+          ),
+        ),
+      ),
     ).then((takeDateTime) {
       if (takeDateTime == null || takeDateTime is! DateTime) {
         return;

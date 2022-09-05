@@ -62,8 +62,7 @@ class DoryNotificationService {
         : now.day;
 
     // id
-    String alarmTimeId = alarmTimeStr.replaceAll(":", "");
-    alarmTimeId = medicineId.toString() + alarmTimeId;
+    String alarmTimeId = alarmId(medicineId, alarmTimeStr);
 
     /// add schedule notification
     final details = _notificationDetails(
@@ -89,6 +88,7 @@ class DoryNotificationService {
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
+      payload: alarmTimeId,
     );
     log('[notification list] ${await pendingNotificationIds}');
 

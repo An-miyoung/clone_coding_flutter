@@ -1,9 +1,10 @@
 import 'dart:io';
-
+import 'package:clone_flutter_app/pages/add_medicine/add_medicine_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../bottomsheet/more_action_bottomsheet.dart';
 import '../../component/dory_constants.dart';
 import '../../component/dory_page_route.dart';
 import '../../main.dart';
@@ -174,7 +175,7 @@ class AfterTakeTile extends StatelessWidget {
         submitTitle: "수정",
         bottomWidget: TextButton(
           onPressed: () {
-            historyRepository.deleteHistory(medicineHistory.key);
+            historyRepository.deleteHistory(medicineAlarm.key);
             Navigator.pop(context);
           },
           child: Text(
@@ -243,10 +244,54 @@ class _MoreButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoButton(
       onPressed: () {
-        medicineRepository.deleteMedicine(medicineAlarm.key);
+        showModalBottomSheet(
+            context: context,
+            builder: (context) => MoreActionBottomSheet(
+                  onPressedModify: () {
+                    Navigator.push(
+                        context,
+                        FadePageRoute(
+                            page: AddMedicinePage(
+                          updateMedicineId: medicineAlarm.id,
+                        ))).then((_) => Navigator.maybePop(context));
+                  },
+                  onPressedDeleteOnlyMedicine: () {
+                    // 1.알람삭제
+                    notification.deleteMultipleAlarm(alarmIds);
+                    // 2.hive 데이터 삭제
+                    medicineRepository.deleteMedicine(medicineAlarm.key);
+                    Navigator.pop(context);
+                  },
+                  onPressedDeleteAll: () {
+                    // 1.알람삭제
+                    notification.deleteMultipleAlarm(alarmIds);
+                    // 2.hive 데이터 삭제
+                    historyRepository.deleteAllHistory(keys);
+                    medicineRepository.deleteMedicine(medicineAlarm.key);
+
+                    Navigator.pop(context);
+                  },
+                ));
       },
       child: const Icon(CupertinoIcons.ellipsis_vertical),
     );
+  }
+
+  List<String> get alarmIds {
+    final medicine = medicineRepository.medicineBox.values
+        .singleWhere((element) => element.id == medicineAlarm.id);
+    final alarmIds = medicine.alarms
+        .map((alarmStr) => notification.alarmId(medicine.id, alarmStr))
+        .toList();
+    return alarmIds;
+  }
+
+  Iterable<int> get keys {
+    final histories = historyRepository.historyBox.values.where((history) =>
+        history.medicineId == medicineAlarm.id &&
+        history.medicineKey == medicineAlarm.key);
+    final keys = histories.map((e) => e.key as int);
+    return keys;
   }
 }
 

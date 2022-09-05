@@ -1,10 +1,11 @@
-import 'package:clone_flutter_app/component/dory_colors.dart';
-import 'package:clone_flutter_app/component/dory_constants.dart';
-import 'package:clone_flutter_app/pages/add_medicine/add_medicine_page.dart';
-import 'package:clone_flutter_app/pages/history/history_page.dart';
-import 'package:clone_flutter_app/pages/today/today_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../component/dory_colors.dart';
+import '../component/dory_constants.dart';
+import 'add_medicine/add_medicine_page.dart';
+import 'history/history_page.dart';
+import 'today/today_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

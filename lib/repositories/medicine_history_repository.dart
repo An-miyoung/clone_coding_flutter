@@ -21,15 +21,24 @@ class MedicineHistoryRepository {
   void deleteHistory(int key) async {
     await historyBox.delete(key);
 
-    log('[deleteHistory] delete (key: $key)');
+    log('[deleteHistory] delete (key:$key)');
     log('result ${historyBox.values.toList()}');
   }
 
-  void updateHistory(
-      {required int key, required MedicineHistory history}) async {
+  void updateHistory({
+    required int key,
+    required MedicineHistory history,
+  }) async {
     await historyBox.put(key, history);
 
-    log('[updateHistory] upadte (key: $key) $history');
+    log('[updateHistory] update (key:$key) $history');
+    log('result ${historyBox.values.toList()}');
+  }
+
+  void deleteAllHistory(Iterable<int> keys) async {
+    await historyBox.deleteAll(keys);
+
+    log('[deleteHistory] delete (keys: $keys)');
     log('result ${historyBox.values.toList()}');
   }
 }

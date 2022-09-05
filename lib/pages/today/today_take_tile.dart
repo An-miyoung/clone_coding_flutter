@@ -26,7 +26,7 @@ class BeforeTakeTile extends StatelessWidget {
 
     return Row(
       children: [
-        _MedicineImageButton(medicineAlarm: medicineAlarm),
+        MedicineImageButton(imagePath: medicineAlarm.imagePath),
         const SizedBox(width: smallSpace),
         Expanded(
           child: Column(
@@ -49,10 +49,15 @@ class BeforeTakeTile extends StatelessWidget {
           Text('${medicineAlarm.name},', style: textStyle),
           TileActionButton(
             onTap: () {
-              historyRepository.addHistory(MedicineHistory(
-                  medicineId: medicineAlarm.id,
-                  alarmTime: medicineAlarm.alarmTime,
-                  takeTime: DateTime.now()));
+              historyRepository.addHistory(
+                MedicineHistory(
+                    medicineId: medicineAlarm.id,
+                    alarmTime: medicineAlarm.alarmTime,
+                    takeTime: DateTime.now(),
+                    medicineKey: medicineAlarm.key,
+                    name: medicineAlarm.name,
+                    imagePath: medicineAlarm.imagePath),
+              );
             },
             title: '지금',
           ),
@@ -77,10 +82,12 @@ class BeforeTakeTile extends StatelessWidget {
         return;
       }
       historyRepository.addHistory(MedicineHistory(
-        medicineId: medicineAlarm.id,
-        alarmTime: medicineAlarm.alarmTime,
-        takeTime: takeDateTime,
-      ));
+          medicineId: medicineAlarm.id,
+          alarmTime: medicineAlarm.alarmTime,
+          takeTime: takeDateTime,
+          medicineKey: medicineAlarm.key,
+          name: medicineAlarm.name,
+          imagePath: medicineAlarm.imagePath));
     });
   }
 }
@@ -102,7 +109,7 @@ class AfterTakeTile extends StatelessWidget {
       children: [
         Stack(
           children: [
-            _MedicineImageButton(medicineAlarm: medicineAlarm),
+            MedicineImageButton(imagePath: medicineAlarm.imagePath),
             CircleAvatar(
                 radius: 40,
                 backgroundColor: Colors.green.withOpacity(0.8),
@@ -183,42 +190,42 @@ class AfterTakeTile extends StatelessWidget {
       historyRepository.updateHistory(
           key: medicineHistory.key,
           history: MedicineHistory(
-            medicineId: medicineAlarm.id,
-            alarmTime: medicineAlarm.alarmTime,
-            takeTime: takeDateTime,
-          ));
+              medicineId: medicineAlarm.id,
+              alarmTime: medicineAlarm.alarmTime,
+              takeTime: takeDateTime,
+              medicineKey: medicineAlarm.key,
+              name: medicineAlarm.name,
+              imagePath: medicineAlarm.imagePath));
     });
   }
 }
 
-class _MedicineImageButton extends StatelessWidget {
-  const _MedicineImageButton({
+class MedicineImageButton extends StatelessWidget {
+  const MedicineImageButton({
     Key? key,
-    required this.medicineAlarm,
+    required this.imagePath,
   }) : super(key: key);
 
-  final MedicineAlarm medicineAlarm;
+  final String? imagePath;
 
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
-      onPressed: medicineAlarm.imagePath == null
+      onPressed: imagePath == null
           ? null
           : () {
               Navigator.push(
                 context,
                 FadePageRoute(
-                  page: ImageDetailPage(medicineAlarm: medicineAlarm),
+                  page: ImageDetailPage(imagePath: imagePath!),
                 ),
               );
             },
       child: CircleAvatar(
         backgroundColor: Colors.grey,
         radius: 40,
-        foregroundImage: medicineAlarm.imagePath == null
-            ? null
-            : FileImage(File(medicineAlarm.imagePath!)),
+        foregroundImage: imagePath == null ? null : FileImage(File(imagePath!)),
       ),
     );
   }

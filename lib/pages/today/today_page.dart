@@ -87,9 +87,16 @@ class TodayPage extends StatelessWidget {
             (history) =>
                 history.medicineId == medicineAlarm.id &&
                 history.alarmTime == medicineAlarm.alarmTime &&
+                history.medicineKey == medicineAlarm.key &&
                 isToday(history.takeTime, DateTime.now()),
             orElse: () => MedicineHistory(
-                medicineId: -1, alarmTime: '', takeTime: DateTime.now()),
+              medicineId: -1,
+              alarmTime: '',
+              takeTime: DateTime.now(),
+              medicineKey: -1,
+              imagePath: "",
+              name: "",
+            ),
           );
           if (todayTakeHistory.medicineId == -1 &&
               todayTakeHistory.alarmTime == "") {

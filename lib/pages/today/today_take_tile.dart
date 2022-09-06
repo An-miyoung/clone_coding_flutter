@@ -224,10 +224,12 @@ class MedicineImageButton extends StatelessWidget {
               );
             },
       child: CircleAvatar(
-        backgroundColor: Colors.grey,
-        radius: 40,
-        foregroundImage: imagePath == null ? null : FileImage(File(imagePath!)),
-      ),
+          backgroundColor: Colors.grey,
+          radius: 40,
+          foregroundImage:
+              imagePath == null ? null : FileImage(File(imagePath!)),
+          child:
+              imagePath == null ? const Icon(CupertinoIcons.alarm_fill) : null),
     );
   }
 }

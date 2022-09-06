@@ -11,6 +11,9 @@ class AddMedicineService with ChangeNotifier {
 
       _alarms.clear();
       _alarms.addAll(updateAlarms.alarms);
+      final sortAlarms = _alarms.toList();
+      sortAlarms.sort((a, b) =>
+          DateFormat('HH:mm').parse(a).compareTo(DateFormat('HH:mm').parse(b)));
     }
   }
 
@@ -23,6 +26,10 @@ class AddMedicineService with ChangeNotifier {
     final nowTime = DateFormat('HH:mm').format(now);
 
     _alarms.add(nowTime);
+    final sortAlarms = _alarms.toList();
+    sortAlarms.sort((a, b) =>
+        DateFormat('HH:mm').parse(a).compareTo(DateFormat('HH:mm').parse(b)));
+
     notifyListeners();
   }
 

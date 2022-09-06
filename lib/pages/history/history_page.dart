@@ -1,3 +1,4 @@
+import 'package:clone_flutter_app/pages/history/history_empty_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
@@ -39,6 +40,9 @@ class HistoryPage extends StatelessWidget {
 
   Widget _buildListView(context, Box<MedicineHistory> historyBox, _) {
     final medicineHistories = historyBox.values.toList().reversed.toList();
+    if (medicineHistories.isEmpty) {
+      return const HistoryEmpty();
+    }
     return ListView.builder(
       itemBuilder: (context, index) {
         final medicineHistory = medicineHistories[index];
